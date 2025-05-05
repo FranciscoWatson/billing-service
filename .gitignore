@@ -1,0 +1,31 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# dotenv
+.env
+
+# Logs
+logs/
+*.log
+
+# AWS credentials (por si usás)
+.aws/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# MacOS
+.DS_Store
+
+# Coverage (si después agregás tests)
+coverage/
+
+# Optional build folder (si después transpilas o usás TypeScript)
+dist/
+build/
