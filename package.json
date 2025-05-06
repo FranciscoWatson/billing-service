@@ -1,0 +1,28 @@
+{
+  "name": "billing-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FranciscoWatson/billing-service.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FranciscoWatson/billing-service/issues"
+  },
+  "homepage": "https://github.com/FranciscoWatson/billing-service#readme",
+  "dependencies": {
+    "@aws-sdk/client-sns": "^3.803.0",
+    "@aws-sdk/client-sqs": "^3.803.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "pg": "^8.15.6",
+    "uuid": "^11.1.0"
+  }
+}
