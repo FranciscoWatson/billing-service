@@ -15,7 +15,7 @@ router.get('/payments/:appointmentId', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT payment_id, amount, status FROM payments WHERE appointment_id = $1',
+      'SELECT id, amount, status FROM payments WHERE appointment_id = $1',
       [appointmentId]
     );
 
