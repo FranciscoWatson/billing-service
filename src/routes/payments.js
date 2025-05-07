@@ -50,7 +50,7 @@ router.post('/pay', async (req, res) => {
       ['paid', appointmentId]
     );
 
-    if (result.rowCount === 0) {
+    if (result.rowCount === 0) { 
       return res.status(404).json({ error: 'Appointment not found' });
     }
 
