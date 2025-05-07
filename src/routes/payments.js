@@ -7,6 +7,11 @@ const router = express.Router();
 // Nuevo GET para traer datos del turno
 router.get('/payments/:appointmentId', async (req, res) => {
   const { appointmentId } = req.params;
+  const appointmentIdInt = parseInt(appointmentId, 10);
+
+  if (isNaN(appointmentIdInt)) {
+    return res.status(400).json({ error: 'Invalid appointmentId' });
+  }
 
   try {
     const result = await pool.query(
