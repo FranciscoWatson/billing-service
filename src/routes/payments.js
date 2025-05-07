@@ -34,6 +34,11 @@ router.get('/payments/:appointmentId', async (req, res) => {
 // POST para pagar, usando appointmentId
 router.post('/pay', async (req, res) => {
   const { appointmentId } = req.body;
+  const appointmentIdInt = parseInt(appointmentId, 10);
+
+  if (isNaN(appointmentIdInt)) {
+    return res.status(400).json({ error: 'Invalid appointmentId' });
+  }
 
   if (!appointmentId) {
     return res.status(400).json({ error: 'appointmentId is required' });
