@@ -3,49 +3,60 @@ const { generatePaymentLink } = require('./paymentLinkGenerator');
 const { pool } = require('./db');
 
 const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
-const queueUrl = process.env.SQS_QUEUE_URL; // cola donde llegan los appointment-created
+const queueUrl = process.env.SQS_QUEUE_URL;
 
 async function listenToQueue() {
-  console.log('Listening to Billing SQS queue...');
+  console.log('👂 Listening to Billing SQS queue...');
 
   setInterval(async () => {
     try {
-      const command = new ReceiveMessageCommand({
-        QueueUrl: queueUrl,
-        MaxNumberOfMessages: 1,
-        WaitTimeSeconds: 5,
-      });
+      const response = await sqsClient.send(
+        new ReceiveMessageCommand({
+          QueueUrl: queueUrl,
+          MaxNumberOfMessages: 1,
+          WaitTimeSeconds: 5,
+        })
+      );
 
-      const response = await sqsClient.send(command);
+      if (!response.Messages) {
+        console.log('📭 No messages received.');
+        return;
+      }
 
-      if (response.Messages) {
-        for (const message of response.Messages) {
-          const body = JSON.parse(message.Body);
-          const event = JSON.parse(body.Message);
+      for (const message of response.Messages) {
+        // --- Parseo robusto ---
+        const body  = JSON.parse(message.Body);
+        const event = body.Message ? JSON.parse(body.Message) : body;
 
-          console.log('Received appointment event:', event);
+        console.log('📚 Parsed event:', event);
 
-          if (event.eventType === 'appointment-created') {
-            const { appointmentId } = event.data;
-            const { link } = generatePaymentLink(appointmentId);
+        // --- Usá directamente el ID del turno ---
+        const appointmentId = event.id;
+        if (!appointmentId) {
+          console.warn('⚠️ Event sin id, lo descarto.');
+        } else {
+          const { link } = generatePaymentLink(appointmentId);
 
-            // Guardar en PostgreSQL
-            await pool.query(
-                'INSERT INTO payments (appointment_id, amount, status) VALUES ($1, $2, $3)',
-                [appointmentId, 20000, 'pending']
-              );              
+          await pool.query(
+            'INSERT INTO payments (appointment_id, amount, status) VALUES ($1, $2, $3)',
+            [appointmentId, 20000, 'pending']
+          );
 
-            console.log('✅ Generated payment link:', link);
-          }
+          console.log(`💾 Insertado pago pendiente para cita ${appointmentId}`);
+          console.log(`🔗 Link generado: ${link}`);
+        }
 
-          await sqsClient.send(new DeleteMessageCommand({
+        // --- Borrar el mensaje de la cola ---
+        await sqsClient.send(
+          new DeleteMessageCommand({
             QueueUrl: queueUrl,
             ReceiptHandle: message.ReceiptHandle,
-          }));
-        }
+          })
+        );
+        console.log('🗑️ Message deleted from queue.');
       }
     } catch (err) {
-      console.error('Error processing SQS messages:', err);
+      console.error('🔥 Error processing SQS messages:', err);
     }
   }, 5000);
 }

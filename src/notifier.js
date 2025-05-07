@@ -7,11 +7,8 @@ async function sendPaymentApprovedMessage(paymentId, appointmentId) {
     TopicArn: process.env.SNS_BILLING_TOPIC_ARN,
     Subject: 'payment-approved',
     Message: JSON.stringify({
-      eventType: 'payment-approved',
-      data: {
-        paymentId,
-        appointmentId,
-      },
+      payment_status: 'approved',
+      appointment_id: appointmentId,
     }),
   });
 

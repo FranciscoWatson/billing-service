@@ -46,7 +46,7 @@ router.post('/pay', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'UPDATE payments SET status = $1 WHERE appointment_id = $2 RETURNING payment_id',
+      'UPDATE payments SET status = $1 WHERE appointment_id = $2 RETURNING id',
       ['paid', appointmentId]
     );
 
